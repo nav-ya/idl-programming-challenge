@@ -1,0 +1,54 @@
+
+
+# RISC-V PMP Checker - nav-ya
+
+**Author:** nav-ya
+
+**Description:**
+
+This program implements a Physical Memory Protection (PMP) check for RISC-V processors, as specified in Chapter 3.7 of the RISC-V Privileged Architecture specification. It takes a PMP configuration file, a physical address, a privilege mode, and an access operation as command-line arguments and determines whether the access would result in a fault.
+
+**Build Instructions:**
+
+No build instructions are needed for Python scripts.
+
+**Run Instructions:**
+
+To run the program, use the following command:
+
+```bash
+python pmp_checker.py <pmp_config_file> <physical_address> <privilege_mode> <operation>
+
+Where:
+
+    <pmp_config_file>: Path to the PMP configuration file. This file contains 128 lines. The first 64 lines are the hexadecimal representation of pmpNcfg registers (N=0..63). The last 64 lines are the hexadecimal representation of pmpaddrN registers (N=0..63).
+    <physical_address>: The physical address to check, in hexadecimal format (e.g., 0xdeadbeef).
+    <privilege_mode>: The privilege mode of the access (M, S, or U).
+    <operation>: The type of access (R for read, W for write, X for execute).
+
+Example:
+Bash
+
+python pmp_checker.py pmp_configuration.txt 0x80000000 M R
+
+Dependencies:
+
+This program has no external dependencies beyond the standard Python library.
+
+Implementation Details:
+
+The program reads the PMP configuration from the specified file and stores the pmpNcfg and pmpaddrN values. It then parses the command-line arguments, converting the address to an integer and validating the privilege mode and operation.
+
+The core PMP check logic iterates through the PMP entries. For each entry, it checks if the given address falls within the region defined by pmpaddrN and the region size (determined by the L bit in the corresponding pmpNcfg).  If the address is within the region, the program checks if the requested operation (R, W, or X) is permitted based on the permission bits in the pmpNcfg.  Specifically, it uses bitwise AND operations (&) to check if the corresponding permission bit is set. The code handles NAPOT (Naturally Aligned Power Of Two) regions correctly by checking the L bit and extracting the R/W/X permissions accordingly. The code also handles size 0 regions.
+
+Testing:
+
+The program was tested with a variety of inputs, including:
+
+    Addresses within and outside defined PMP regions.
+    Different combinations of R, W, and X permissions for each region.
+    Addresses at the boundaries of PMP regions.
+    NAPOT regions to ensure correct handling of the L bit and R/W/X permissions.
+    Invalid inputs, such as incorrect file paths, invalid hexadecimal addresses, incorrect privilege modes, and invalid operations.
+    # RISC-V PMP Checker - nav-ya
+
